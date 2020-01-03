@@ -111,6 +111,7 @@ parameters:
   name: CPU_REQUEST
   required: true
   value: "300m"
+  # TODO - Right now using docker.io for image registry, once CI/CD setup complete then we can move this to quay/internal registry
 - description: Docker registry where the image is
   displayName: Docker registry
   required: true
