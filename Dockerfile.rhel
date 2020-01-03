@@ -15,11 +15,12 @@ ENV JAVA_HOME /usr/lib/jvm/java-openjdk
 # set work directory
 WORKDIR /home
 
-# Clone janusgraph v0.4.0 relese
-RUN wget "https://github.com/JanusGraph/janusgraph/releases/download/v0.4.0/janusgraph-0.4.0-hadoop2.zip" -P /home
-
-# unzip relase code and delete zip file
-RUN unzip /home/janusgraph-0.4.0-hadoop2.zip && rm /home/janusgraph-0.4.0-hadoop2.zip
+# This step doing multiple operation as mentioned below.  
+# 1. Download janusgraph v0.4.0 relese code
+# 2. unzip relase code 
+# 3. delete zip file
+RUN wget "https://github.com/JanusGraph/janusgraph/releases/download/v0.4.0/janusgraph-0.4.0-hadoop2.zip" -P /home &&\
+    unzip /home/janusgraph-0.4.0-hadoop2.zip && rm /home/janusgraph-0.4.0-hadoop2.zip
 
 # add entrypoint.sh file into home directory
 ADD scripts/entrypoint.sh entrypoint.sh
@@ -32,4 +33,3 @@ RUN chmod +x entrypoint.sh
 
 # execute logic mentioned in entrypoint.sh file
 ENTRYPOINT [ "bash","entrypoint.sh"]
-

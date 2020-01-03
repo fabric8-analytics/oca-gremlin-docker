@@ -43,6 +43,8 @@ objects:
             value: ${REST_VALUE}
           - name: CASSANDRA_SERVICE
             value: ${CASSANDRA_SERVICE}
+          - name: JAVA_OPTIONS
+            value: ${JAVA_OPTIONS}
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
           imagePullPolicy: Always
           name: oca-gremlin-image
@@ -137,7 +139,11 @@ parameters:
   name: REST_VALUE
   required: true
   value: "1"
-- description: cassandra service that exposed with 9042 port to talk to cassandra cql. 
+- description: Cassandra service name with 9042 port expose to talk to cassandra cql. 
   name: CASSANDRA_SERVICE
   required: true
   value: "rook-cassandra-client"
+- description: JVM Options
+  name: JAVA_OPTIONS
+  required: false
+  value: ""
