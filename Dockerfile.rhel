@@ -9,7 +9,7 @@ RUN yum -y install unzip wget &&\
     yum -y install java java-devel tree nmap-ncat.x86_64&&\
     yum clean all
 
-# set java home path require to tun janusgrpah
+# set java home path require to run janusgrpah
 ENV JAVA_HOME /usr/lib/jvm/java-openjdk
 
 # set work directory
