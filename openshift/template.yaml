@@ -12,8 +12,8 @@ objects:
   metadata:
     labels:
       type: oca-service
-      template: oca-gremlin-server-${CHANNELIZER}
-    name: oca-gremlin-${CHANNELIZER}
+      template: oca-gremlin-server-${CHANNELIZER}${QUERY_ADMINISTRATION_REGION}
+    name: oca-gremlin-${CHANNELIZER}${QUERY_ADMINISTRATION_REGION}
   spec:
     ports:
     - name: "8182"
@@ -21,21 +21,21 @@ objects:
       protocol: TCP
       targetPort: 8182
     selector:
-      service: oca-gremlin-${CHANNELIZER}
+      service: oca-gremlin-${CHANNELIZER}${QUERY_ADMINISTRATION_REGION}
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
     labels:
       type: oca-dc
-      template: oca-gremlin-server-${CHANNELIZER}
-    name: oca-gremlin-${CHANNELIZER}
+      template: oca-gremlin-server-${CHANNELIZER}${QUERY_ADMINISTRATION_REGION}
+    name: oca-gremlin-${CHANNELIZER}${QUERY_ADMINISTRATION_REGION}
   spec:
     selector:
-      service: oca-gremlin-${CHANNELIZER}
+      service: oca-gremlin-${CHANNELIZER}${QUERY_ADMINISTRATION_REGION}
     template:
       metadata:
         labels:
-          service: oca-gremlin-${CHANNELIZER}
+          service: oca-gremlin-${CHANNELIZER}${QUERY_ADMINISTRATION_REGION}
       spec:
         containers:
         - env:
@@ -89,7 +89,7 @@ objects:
   spec:
     to:
       kind: Service
-      name: oca-gremlin-${CHANNELIZER}
+      name: oca-gremlin-${CHANNELIZER}${QUERY_ADMINISTRATION_REGION}
       weight: 100
     port:
       targetPort: '8182'
@@ -106,22 +106,21 @@ parameters:
 - description: CPU_LIMIT
   name: CPU_LIMIT
   required: true
-  value: "1000m"
+  value: "500m"
 - description: CPU_REQUEST
   name: CPU_REQUEST
   required: true
-  value: "300m"
-  # TODO - Right now using docker.io for image registry, once CI/CD setup complete then we can move this to quay/internal registry
+  value: "200m"
 - description: Docker registry where the image is
   displayName: Docker registry
   required: true
   name: DOCKER_REGISTRY
-  value: "docker.io"
+  value: "quay.io"
 - description: Docker image to use
   displayName: Docker image
   required: true
   name: DOCKER_IMAGE
-  value: "rajusem/gremlin-http"
+  value: "openshiftio/oca-gremlin"
 - description: Image tag
   displayName: Image tag
   required: true
@@ -147,4 +146,9 @@ parameters:
 - description: JVM Options
   name: JAVA_OPTIONS
   required: false
+  value: ""
+- description: Region for service ued to deploy different service  ex  on with suffix  "online" or "offline"
+  displayName: Query administration region
+  required: false
+  name: QUERY_ADMINISTRATION_REGION
   value: ""
