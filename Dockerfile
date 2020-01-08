@@ -1,57 +1,33 @@
 FROM registry.centos.org/centos/centos:7
 
-MAINTAINER Shubham <shubham@linux.com>
-
 EXPOSE 8182
 
-RUN yum -y install epel-release &&\
-    yum -y install git zip unzip awscli &&\
-    yum -y install java java-devel maven &&\
-    yum -y install wget &&\
+# install supported utilities 
+RUN yum -y install unzip wget &&\
+    yum -y install java java-devel tree nmap-ncat.x86_64 &&\
     yum clean all
 
-
+# set java home path require to run janusgrpah
 ENV JAVA_HOME /usr/lib/jvm/java-openjdk
-ENV M2_DIR=/m2
-ENV M2_REPO=${M2_DIR}/repository
-ENV MAVEN_OPTS="-Dmaven.repo.local=${M2_REPO}"
 
+# set work directory
+WORKDIR /home
 
-# Clone Janusgraph from a particular version and create jar
-RUN git clone https://github.com/awslabs/dynamodb-janusgraph-storage-backend.git --branch jg0.1.1-1.1.0 /opt/dynamodb/dynamodb-janusgraph-storage-backend/ &&\
-    cd /opt/dynamodb/dynamodb-janusgraph-storage-backend &&\
-    mvn clean install    
+# This step doing multiple operation as mentioned below.  
+# 1. Download janusgraph v0.4.0 relese code
+# 2. unzip relase code 
+# 3. delete zip file
+RUN wget "https://github.com/JanusGraph/janusgraph/releases/download/v0.4.0/janusgraph-0.4.0-hadoop2.zip" -P /home &&\
+    unzip /home/janusgraph-0.4.0-hadoop2.zip && rm /home/janusgraph-0.4.0-hadoop2.zip
 
-# Modify few entries in the install-gremlin-server.sh file
-RUN cd /opt/dynamodb/dynamodb-janusgraph-storage-backend/ &&\
-    sed -i "\#gpg --verify src/test/resources/${JANUSGRAPH_VANILLA_SERVER_ZIP}#d" src/test/resources/install-gremlin-server.sh &&\
-    sed -i 's#JANUSGRAPH_VANILLA_SERVER_ZIP=.*#JANUSGRAPH_VANILLA_SERVER_ZIP=/opt/dynamodb/dynamodb-janusgraph-storage-backend/server/janusgraph-0.1.1-hadoop2.zip#' src/test/resources/install-gremlin-server.sh &&\
-    src/test/resources/install-gremlin-server.sh
+# add entrypoint.sh file into home directory
+ADD scripts/entrypoint.sh entrypoint.sh
 
-WORKDIR /opt/dynamodb/
+# add janusgraph-cassandra.properties file into gremlin-server folder
+ADD configuration/janusgraph-cassandra.properties /home/janusgraph-0.4.0-hadoop2/conf/gremlin-server/
 
-# Cleanup Directories
-RUN mkdir -p ${M2_DIR}/root &&\
-    rm -Rf ${M2_REPO}/ &&\
-    rm -rf ~/.m2/repository &&\
-    rm -rf ~/.groovy/grapes &&\
-    mkdir -p ${M2_REPO}/org/slf4j/slf4j-api/1.7.21/ &&\
-    curl -o ${M2_REPO}/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar http://central.maven.org/maven2/org/slf4j/slf4j-api/1.7.21/slf4j-api-1.7.21.jar
-    
-# Install Gremlin Python
-RUN cd dynamodb-janusgraph-storage-backend/server/dynamodb-janusgraph-storage-backend-1.1.0 &&\
-    bin/gremlin-server.sh -i org.apache.tinkerpop gremlin-python 3.2.3
+# add execute permission on entrypoint.sh
+RUN chmod +x entrypoint.sh 
 
-ADD scripts/entrypoint.sh /bin/entrypoint.sh
-
-RUN chmod +x /bin/entrypoint.sh &&\
-    chgrp -R 0 /opt/dynamodb/ &&\
-    chmod -R g+rw /opt/dynamodb/ &&\
-    find /opt/dynamodb/ -type d -exec chmod g+x {} +
-
-ADD scripts/entrypoint-local.sh /bin/entrypoint-local.sh
-RUN chmod +x /bin/entrypoint-local.sh
-
-COPY scripts/post-hook.sh /bin/
-
-ENTRYPOINT ["/bin/entrypoint.sh"]
+# execute logic mentioned in entrypoint.sh file
+ENTRYPOINT [ "bash","entrypoint.sh"]
