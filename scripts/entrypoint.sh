@@ -27,8 +27,8 @@ if [ -n "$CASSANDRA_SERVICE" ]; then
     sed -i.bckp 's#storage.hostname=.*#storage.hostname='${CASSANDRA_SERVICE}'#' ${PROPS}
 fi
 
-if [ -n "$DB_REPLICATION_FACTOR" ]; then
-    sed -i.bckp 's#storage.cql.replication-factor=.*#storage.cql.replication-factor='${DB_REPLICATION_FACTOR}'#' ${PROPS}
+if [ -n "$CASSANDRA_REPLICATION_FACTOR" ]; then
+    sed -i.bckp 's#storage.cql.replication-factor=.*#storage.cql.replication-factor='${CASSANDRA_REPLICATION_FACTOR}'#' ${PROPS}
 fi
 
 if [ -n "$RESPONSE_TIMEOUT" ]; then
