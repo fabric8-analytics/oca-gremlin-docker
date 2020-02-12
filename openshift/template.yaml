@@ -43,6 +43,8 @@ objects:
             value: ${REST_VALUE}
           - name: CASSANDRA_SERVICE
             value: ${CASSANDRA_SERVICE}
+          - name: CASSANDRA_REPLICATION_FACTOR
+            value: ${CASSANDRA_REPLICATION_FACTOR}
           - name: JAVA_OPTIONS
             value: ${JAVA_OPTIONS}
           image: "${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${IMAGE_TAG}"
@@ -152,3 +154,8 @@ parameters:
   required: false
   name: QUERY_ADMINISTRATION_REGION
   value: ""
+- description: Data replication factor at database level. 
+  displayName: Database Replication Factor
+  required: false
+  name: CASSANDRA_REPLICATION_FACTOR
+  value: "3"
